@@ -1,0 +1,25 @@
+{
+  "extends": "eslint:recommended",
+  "parserOptions": {
+    "ecmaVersion": 2017
+  },
+  "env": {
+    "es6": true,
+    "node": true
+  },
+  "rules": {
+    "no-undef": "error",
+    "semi": "warn",
+    "spaced-comment": "warn",
+    "arrow-parens": ["error", "as-needed"],
+    "arrow-spacing": "error",
+    "comma-dangle": "warn",
+    "no-console": 0,
+    "no-unused-vars": 0,
+    "no-unreachable": "warn",
+    "no-unused-vars": "warn"
+  },
+  "globals": {
+    "d3": true
+  }
+}

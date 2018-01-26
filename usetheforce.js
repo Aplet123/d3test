@@ -51,17 +51,17 @@ var sim = d3.forceSimulation(nodes)
   .force("collide", d3.forceCollide().strength(1).radius(function (node) {
     return node.radius;
   }))
-  .force("mouse", d3.forceRadial(20, 0, 0).strength(- 0.01));
+  .force("mouse", d3.forceRadial(1, 0, 0).strength(- 0.01));
 sim.on("tick", function () {
   controlled.fx = mouseX;
   controlled.fy = mouseY;
   var mouseStrength = 0;
   if (mouseState == 0) {
-    mouseStrength = 0.1;
+    mouseStrength = 0.2;
   } else if (mouseState == 2) {
-    mouseStrength = -1;
+    mouseStrength = -0.2;
   }
-  sim.force("mouse", d3.forceRadial(20, mouseX, mouseY).strength(mouseStrength * 0.1));
+  sim.force("mouse", d3.forceRadial(1, mouseX, mouseY).strength(mouseStrength * 0.1));
   els.attr("cx", function (d) {
     return d.x;
   }).attr("cy", function (d) {
