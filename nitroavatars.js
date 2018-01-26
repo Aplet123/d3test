@@ -19,7 +19,7 @@ function addSVG (name) {
 	svg = window[name];
 }
 addSVG("coloredspin");
-(function () {
+(function (svg) {
 	var spinGroup = svg.append("g")
 		.attr("transform", "translate(128 128)");
 	var arc = d3.arc()
@@ -60,9 +60,9 @@ addSVG("coloredspin");
 		}
 		it ++;
 	}, 5);
-})();
+})(svg);
 addSVG("centercircle");
-(function () {
+(function (svg) {
 	var rad = 90;
 	var rot = 0;
 	var inw = true;
@@ -91,7 +91,44 @@ addSVG("centercircle");
 			inw = ! inw;
 		}
 	}, 5);
-})();
+})(svg);
+addSVG("spherespin");
+(function (svg) {
+	var rad = 100;
+	var splits = 20;
+	var spinGroup = svg.append("g")
+		.attr("transform", "translate(128 128)");
+	function getPath (theta) {
+		var article;
+		if (Math.sin(theta) > 0) {
+			article = " 0 1 0 ";
+		} else {
+			article = " 0 1 1 ";
+		}
+		return "M0 " + rad + " A " + (Math.sin(theta) * rad) + " " + rad + article + "0 " + (- rad);
+	}
+	d3.range(splits).map(function (v) {
+		spinGroup.append("path")
+			.datum({
+				theta: 2 * Math.PI * v / splits
+			})
+			.attr("d", getPath(2 * Math.PI * v / splits))
+			.attr("stroke", d3.interpolateRainbow(v / splits))
+			.attr("stroke-width", "2")
+			.style("mix-blend-mode", "lighten");
+	});
+	var it = 0;
+	setInterval(function () {
+		if (it > 2 * Math.PI) {
+			it -= 2 * Math.PI;
+		}
+		spinGroup.selectAll("path")
+			.attr("d", function (d) {
+				return getPath(d.theta + it);
+			});
+		it += 0.005;
+	}, 5);
+})(svg);
 if (location.hash && d3.select(location.hash).node()) {
 	d3.selectAll("svg").style("display", "none");
 	d3.select(location.hash).style("display", "block");
