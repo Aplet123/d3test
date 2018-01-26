@@ -20,6 +20,9 @@
     "no-unused-vars": "warn"
   },
   "globals": {
-    "d3": true
+    "d3": true,
+    "location": true,
+    "addEventListener": true,
+    "window": true
   }
 }
