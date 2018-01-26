@@ -8,7 +8,14 @@ function addSVG (name) {
 		.attr("height", "256")
 		.style("border", "1px solid #ffffff")
 		.style("display", "block")
-		.attr("id", name);
+		.attr("id", name)
+		.on("click", function () {
+			if (location.hash == "#" + this.id) {
+				location.hash = "#";
+			} else {
+				location.hash = "#" + this.id;
+			}
+		});
 	svg = window[name];
 }
 addSVG("coloredspin");
