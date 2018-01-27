@@ -132,14 +132,18 @@ addSVG("spherespin");
 if (location.hash && d3.select(location.hash).node()) {
 	d3.selectAll("svg").style("display", "none");
 	d3.select(location.hash).style("display", "block");
+	d3.select("body").style("zoom", "200%");
 } else {
 	d3.selectAll("svg").style("display", "block");
+	d3.select("body").style("zoom", "100%");
 }
 addEventListener("hashchange", function () {
 	if (location.hash && d3.select(location.hash).node()) {
 		d3.selectAll("svg").style("display", "none");
 		d3.select(location.hash).style("display", "block");
+		d3.select("body").style("zoom", "200%");
 	} else {
 		d3.selectAll("svg").style("display", "block");
+		d3.select("body").style("zoom", "100%");
 	}
 });
