@@ -129,6 +129,51 @@ addSVG("spherespin");
 		it += 0.005;
 	}, 5);
 })(svg);
+addSVG("circleception");
+(function (svg) {
+	var spinGroup = svg.append("g")
+		.attr("transform", "translate(128 128)");
+	for (var i = 0; i < 7; i ++) {
+		spinGroup.append("circle")
+			.attrs({
+				cx: 0,
+				cy: 0,
+				"stroke-width": 10,
+				stroke: d3.interpolateRainbow(i / 7),
+				r: 150 - 20 * i
+			})
+			.datum(false);
+	}
+	var updated = false;
+	d3.timer(function () {
+		spinGroup.selectAll("circle")
+			.attr("r", function () {
+				var sel = d3.select(this);
+				var selr = Number(sel.attr("r"));
+				if (selr > 130 && ! sel.datum() && ! updated) {
+					spinGroup.append("circle")
+						.attrs({
+							cx: 0,
+							cy: 0,
+							"stroke-width": 10,
+							stroke: sel.attr("stroke"),
+							r: 10
+						})
+						.datum(false);
+					sel.datum(true);
+					updated = true;
+					d3.timeout(function () {
+						updated = false;
+					}, 270);
+					return selr;
+				} else if (selr > 190) {
+					sel.remove();
+					return;
+				}
+				return selr + 1;
+			});
+	}, 5);
+})(svg);
 if (location.hash && d3.select(location.hash).node()) {
 	d3.selectAll("svg").style("display", "none");
 	d3.select(location.hash).style("display", "block");
