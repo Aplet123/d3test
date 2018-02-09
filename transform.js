@@ -7,6 +7,39 @@ var svg = d3.select("body")
   .on("contextmenu", function () {
     d3.event.preventDefault();
   });
+var centerX = 0;
+var centerY = 0;
+var centerIndicator = svg.append("g");
+centerIndicator.append("circle")
+  .attrs({
+    r: 10,
+    "stroke-width": 3,
+    stroke: "#0000ff",
+    fill: "transparent",
+    cx: 0,
+    cy: 0
+  });
+centerIndicator.append("line")
+  .attrs({
+    x1: 0,
+    y1: 15,
+    x2: 0,
+    y2: -15,
+    "stroke-linecap": "round",
+    "stroke-width": 3,
+    stroke: "#0000ff"
+  });
+centerIndicator.append("line")
+  .attrs({
+    x1: 15,
+    y1: 0,
+    x2: -15,
+    y2: 0,
+    "stroke-linecap": "round",
+    "stroke-width": 3,
+    stroke: "#0000ff"
+  });
+var transforms = [1, 0, 0, 0, 1, 0];
 svg.lower();
 d3.select("table")
   .style("width", innerWidth / 3 - 4);
@@ -17,6 +50,7 @@ var transpoly = svg.append("polygon")
     "stroke-width": 2,
     points: ""
   });
+var transLayer = svg.append("g");
 var poly = svg.append("polygon")
   .attrs({
     fill: "transparent",
@@ -24,9 +58,13 @@ var poly = svg.append("polygon")
     "stroke-width": 2,
     points: ""
   });
-var transLayer = svg.append("g");
 var pointLayer = svg.append("g");
 var curId = 0;
+function getNew (x, y) {
+  var vx = x - centerX;
+  var vy = y - centerY;
+  return [transforms[0] * vx + transforms[1] * vy + transforms[2] + centerX, transforms[3] * vx + transforms[4] * vy + transforms[5] + centerY];
+}
 function updatePoly () {
   var pointList = "";
   pointLayer.selectAll("g")
@@ -35,27 +73,53 @@ function updatePoly () {
     })
     .each(function (d) {
       pointList += d.x + "," + d.y + " ";
+      var coords = getNew(d.x, d.y);
+      if (transLayer.selectAll("circle").filter(function (da) {
+        return da.id == d.id;
+      }).size() > 0) {
+        transLayer.selectAll("circle").filter(function (da) {
+          return da.id == d.id;
+        }).attrs({
+          cx: coords[0],
+          cy: coords[1]
+        });
+        var td = transLayer.selectAll("circle").filter(function (da) {
+          return da.id == d.id;
+        }).datum();
+        td.x = coords[0];
+        td.y = coords[1];
+      } else {
+        transLayer.append("circle")
+          .datum({
+            id: d.id,
+            x: coords[0],
+            y: coords[1]
+          })
+          .attrs({
+            cx: coords[0],
+            cy: coords[1],
+            r: 5,
+            fill: "#ffffff",
+            stroke: "#ff0000",
+            "stroke-width": 2
+          });
+      }
+    });
+  var transList = "";
+  transLayer.selectAll("circle")
+    .sort(function (a, b) {
+      return a.id - b.id;
+    })
+    .each(function (d) {
+      transList += d.x + "," + d.y + " ";
     });
   poly.attr("points", pointList);
-  transpoly.attr("points", pointList);
+  transpoly.attr("points", transList);
+  centerIndicator.attr("transform", "translate(" + centerX + " " + centerY + ")");
 }
 function pointGen (x, y) {
   var pointG = pointLayer.append("g")
     .attr("transform", "translate(" + x + " " + y + ")")
-    .datum({
-      id: curId,
-      x: x,
-      y: y
-    });
-  var transG = transLayer.append("circle")
-    .attrs({
-      cx: x,
-      cy: y,
-      r: 5,
-      fill: "#ffffff",
-      stroke: "#ff0000",
-      "stroke-width": 2
-    })
     .datum({
       id: curId,
       x: x,
@@ -83,25 +147,26 @@ function pointGen (x, y) {
       d.y = d3.event.y;
       d3.select(this)
         .attr("transform", "translate(" + d.x + " " + d.y + ")");
-      transG.datum().x = d3.event.x;
-      transG.datum().y = d3.event.y;
-      transG.attrs({
-        cx: d3.event.x,
-        cy: d3.event.y
-      });
       updatePoly();
     }));
-  pointG.on("dblclick taphold", function (d) {
+  pointG.on("mousedown", function (d) {
+    if (d3.event.button != 2) {
+      return;
+    }
     pointRemove(d.id);
     updatePoly();
     d3.event.stopPropagation();
   });
-  pointG.on("mousedown", function () {
-    if (d3.event.button == 2) {
-      d3.select(this).datum().id = curId;
-      curId ++;
-      updatePoly();
-    }
+  pointG.on("dblclick taphold", function () {
+    var td = d3.select(this).datum();
+    transLayer.selectAll("circle")
+      .filter(function (d) {
+        return d.id == td.id;
+      })
+      .datum().id = curId;
+    td.id = curId;
+    curId ++;
+    updatePoly();
   });
   curId ++;
 }
@@ -122,22 +187,34 @@ pointGen(200, 100);
 pointGen(200, 200);
 pointGen(100, 200);
 updatePoly();
-svg.on("dblclick taphold", function () {
+svg.on("mousedown", function () {
+  if (d3.event.button != 2) {
+    return;
+  }
   var coords = d3.mouse(this);
   pointGen(coords[0], coords[1]);
   updatePoly();
 });
 d3.select("#transformbutton").on("click", function () {
-  var transstr = "";
-  for (var i = 1; i <= 3; i ++) {
-    for (var j = 1; j <= 2; j ++) {
-      if (isNaN(Number(d3.select("#input" + j + i).property("value")))) {
-        d3.select("#input" + j + i).property("value", d3.select("#input" + j + i).attr("value"));
+  for (var i = 1; i <= 2; i ++) {
+    for (var j = 1; j <= 3; j ++) {
+      var selection = d3.select("#input" + i + j);
+      if (isNaN(Number(selection.property("value")))) {
+        selection.property("value", selection.attr("value"));
       }
-      transstr += d3.select("#input" + j + i).property("value") + " ";
+      transforms[(i - 1) * 3 + j - 1] = Number(selection.property("value"));
     }
   }
-  transstr = "matrix(" + transstr.replace(/\s$/, "") + ")";
-  transpoly.attr("transform", transstr);
-  transLayer.attr("transform", transstr);
+  updatePoly();
 });
+d3.select("body").on("keydown", function () {
+  if (d3.event.key == "Enter") {
+    d3.select("#transformbutton").dispatch("click");
+  }
+});
+svg.call(d3.drag()
+  .on("drag", function () {
+    centerX = d3.event.x;
+    centerY = d3.event.y;
+    updatePoly();
+  }));
