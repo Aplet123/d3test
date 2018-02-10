@@ -201,7 +201,7 @@ addSVG("typingemoji");
 			r: 18.75
 		});
 	onlineGroup.selectAll("circle.loading")
-		.data([0.6, 0.3, 0])
+		.data([0.3, 0.15, 0])
 		.enter()
 		.append("circle")
 		.classed("loading", true)
@@ -225,15 +225,15 @@ addSVG("typingemoji");
 				d.opacity += d.direction * 0.01;
 				if (d.opacity > 1) {
 					d.opacity = 1;
-					d.direction = -1;
+					d.direction = -2;
 				}
-				if (d.opacity < 0) {
+				if (d.opacity < -0.3) {
 					d.opacity = 0;
-					d.direction = 2;
+					d.direction = 5;
 				}
-				return d.opacity;
+				return Math.max(d.opacity, 0);
 			});
-	}, 5);
+	}, 2);
 })(svg);
 if (location.hash && d3.select(location.hash).node()) {
 	d3.selectAll("svg").style("display", "none");
