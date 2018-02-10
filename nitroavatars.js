@@ -174,7 +174,7 @@ addSVG("circleception");
 			});
 	}, 5);
 })(svg);
-addSVG("typingemoji");
+addSVG("typingstatus");
 (function (svg) {
 	var onlineGroup = svg.append("g")
 		.attr("transform", "translate(128, 51.2)");
