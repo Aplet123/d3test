@@ -177,7 +177,7 @@ addSVG("circleception");
 addSVG("typingemoji");
 (function (svg) {
 	var onlineGroup = svg.append("g")
-		.attr("transform", "translate(128, 40)");
+		.attr("transform", "translate(128, 51.2)");
 	onlineGroup.append("rect")
 		.attrs({
 			x: -30,
@@ -200,25 +200,100 @@ addSVG("typingemoji");
 			fill: "#43b581",
 			r: 18.75
 		});
-	onlineGroup.selectAll("circle.loading")
-		.data([0.3, 0.15, 0])
-		.enter()
-		.append("circle")
-		.classed("loading", true)
+	var idleGroup = svg.append("g")
+		.attr("transform", "translate(128, 102.4)");
+	idleGroup.append("rect")
 		.attrs({
-			cx: function (d, i) {
-				return (i - 1) * 30;
-			},
-			cy: 0,
-			r: 10,
-			fill: "#ffffff"
-		})
-		.datum(function (d) {
-			return {
-				opacity: d,
-				direction: 1
-			};
+			x: -30,
+			y: -18.75,
+			width: 60,
+			height: 37.5,
+			fill: "#faa61a"
 		});
+	idleGroup.append("circle")
+		.attrs({
+			cx: -30,
+			cy: 0,
+			fill: "#faa61a",
+			r: 18.75
+		});
+	idleGroup.append("circle")
+		.attrs({
+			cx: 30,
+			cy: 0,
+			fill: "#faa61a",
+			r: 18.75
+		});
+	var dndGroup = svg.append("g")
+		.attr("transform", "translate(128, 153.6)");
+	dndGroup.append("rect")
+		.attrs({
+			x: -30,
+			y: -18.75,
+			width: 60,
+			height: 37.5,
+			fill: "#f04747"
+		});
+	dndGroup.append("circle")
+		.attrs({
+			cx: -30,
+			cy: 0,
+			fill: "#f04747",
+			r: 18.75
+		});
+	dndGroup.append("circle")
+		.attrs({
+			cx: 30,
+			cy: 0,
+			fill: "#f04747",
+			r: 18.75
+		});
+	var offlineGroup = svg.append("g")
+		.attr("transform", "translate(128, 204.8)");
+	offlineGroup.append("rect")
+		.attrs({
+			x: -30,
+			y: -18.75,
+			width: 60,
+			height: 37.5,
+			fill: "#747f8d"
+		});
+	offlineGroup.append("circle")
+		.attrs({
+			cx: -30,
+			cy: 0,
+			fill: "#747f8d",
+			r: 18.75
+		});
+	offlineGroup.append("circle")
+		.attrs({
+			cx: 30,
+			cy: 0,
+			fill: "#747f8d",
+			r: 18.75
+		});
+	var groups = [onlineGroup, idleGroup, dndGroup, offlineGroup];
+	for (var i = 0; i < groups.length; i ++) {
+		groups[i].selectAll("circle.loading")
+			.data([0.3, 0.15, 0])
+			.enter()
+			.append("circle")
+			.classed("loading", true)
+			.attrs({
+				cx: function (d, i) {
+					return (i - 1) * 30;
+				},
+				cy: 0,
+				r: 10,
+				fill: "#ffffff"
+			})
+			.datum(function (d) {
+				return {
+					opacity: d,
+					direction: 1
+				};
+			});
+	}
 	d3.timer(function () {
 		svg.selectAll("circle.loading")
 			.attr("opacity", function (d) {
