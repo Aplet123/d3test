@@ -174,6 +174,67 @@ addSVG("circleception");
 			});
 	}, 5);
 })(svg);
+addSVG("typingemoji");
+(function (svg) {
+	var onlineGroup = svg.append("g")
+		.attr("transform", "translate(128, 40)");
+	onlineGroup.append("rect")
+		.attrs({
+			x: -30,
+			y: -18.75,
+			width: 60,
+			height: 37.5,
+			fill: "#43b581"
+		});
+	onlineGroup.append("circle")
+		.attrs({
+			cx: -30,
+			cy: 0,
+			fill: "#43b581",
+			r: 18.75
+		});
+	onlineGroup.append("circle")
+		.attrs({
+			cx: 30,
+			cy: 0,
+			fill: "#43b581",
+			r: 18.75
+		});
+	onlineGroup.selectAll("circle.loading")
+		.data([0.6, 0.3, 0])
+		.enter()
+		.append("circle")
+		.classed("loading", true)
+		.attrs({
+			cx: function (d, i) {
+				return (i - 1) * 30;
+			},
+			cy: 0,
+			r: 10,
+			fill: "#ffffff"
+		})
+		.datum(function (d) {
+			return {
+				opacity: d,
+				direction: 1
+			};
+		});
+	d3.timer(function () {
+		svg.selectAll("circle.loading")
+			.attr("opacity", function (d) {
+				d.opacity += d.direction * 0.01;
+				if (d.opacity > 1) {
+					d.opacity = 1;
+					d.direction = -1;
+				}
+				if (d.opacity < 0) {
+					d.opacity = 0;
+					d.direction = 2;
+				}
+				return d.opacity;
+			});
+	}, 5);
+})(svg);
 if (location.hash && d3.select(location.hash).node()) {
 	d3.selectAll("svg").style("display", "none");
 	d3.select(location.hash).style("display", "block");
