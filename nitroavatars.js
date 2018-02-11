@@ -310,6 +310,131 @@ addSVG("typingstatus");
 			});
 	}, 2);
 })(svg);
+addSVG("particleexplosion");
+(function (svg) {
+	var particleLayer = svg.append("g")
+		.attr("transform", "translate(128 128)");
+	var spinGroup = svg.append("g")
+		.attr("transform", "translate(128 128)");
+	var outRad = 190;
+	for (var i = 0; i < 8; i ++) {
+		spinGroup.append("circle")
+			.attrs({
+				r: 10,
+				fill: d3.interpolateRainbow(i / 8),
+				cx: outRad * Math.cos(i * Math.PI / 4),
+				cy: outRad * Math.sin(i * Math.PI / 4)
+			})
+			.datum({
+				theta: i * Math.PI / 4,
+				r: outRad,
+				direction: 1
+			})
+			.classed("particle", true);
+	}
+	var center = spinGroup.append("circle")
+		.attrs({
+			cx: 0,
+			cy: 0,
+			fill: "#ffffff",
+			r: 20
+		});
+	var shouldTrans = true;
+	var curLoop = 0;
+	d3.timer(function () {
+		spinGroup.selectAll("circle.particle")
+			.datum(function (d) {
+				d.theta += 0.07 * d.direction;
+				d.r -= 2 * d.direction;
+				if (d.r <= 0) {
+					d.r = 0;
+					d.direction = -1;
+					if (shouldTrans) {
+						center.transition()
+							.duration(500)
+							.ease(d3.easeLinear)
+							.attr("r", 100)
+							.transition()
+							.duration(500)
+							.ease(d3.easeLinear)
+							.attr("r", 20);
+						shouldTrans = false;
+					}
+				}
+				if (d.r >= outRad) {
+					d.r = outRad;
+					d.direction = 1;
+					shouldTrans = true;
+				}
+				if (d.theta > Math.PI) {
+					d.theta -= 2 * Math.PI;
+				}
+				return d;
+			})
+			.attrs({
+				cx: function (d) {
+					return d.r * Math.cos(d.theta);
+				},
+				cy: function (d) {
+					return d.r * Math.sin(d.theta);
+				}
+			})
+			.each(function (d, i) {
+				if (curLoop) {
+					return;
+				}
+				particleLayer.append("circle")
+					.attrs({
+						r: 5,
+						fill: d3.interpolateRainbow(i / 8),
+						opacity: 1
+					})
+					.datum({
+						r: d.r + 30,
+						theta: d.theta
+					})
+					.transition()
+					.duration(1000)
+					.ease(d3.easeLinear)
+					.attr("opacity", 0)
+					.attr("r", 0)
+					.on("end", function () {
+						this.remove();
+					});
+				particleLayer.append("circle")
+					.attrs({
+						r: 5,
+						fill: d3.interpolateRainbow(i / 8),
+						opacity: 1
+					})
+					.datum({
+						r: d.r - 30,
+						theta: d.theta
+					})
+					.transition()
+					.duration(1000)
+					.ease(d3.easeLinear)
+					.attr("opacity", 0)
+					.attr("r", 0)
+					.on("end", function () {
+						this.remove();
+					});
+			});
+		particleLayer.selectAll("circle")
+			.attrs({
+				cx: function (d) {
+					return d.r * Math.cos(d.theta);
+				},
+				cy: function (d) {
+					return d.r * Math.sin(d.theta);
+				}
+			});
+		curLoop ++;
+		if (curLoop >= 5) {
+			curLoop = 0;
+		}
+	}, 5);
+})(svg);
 if (location.hash && d3.select(location.hash).node()) {
 	d3.selectAll("svg").style("display", "none");
 	svg = d3.select(location.hash).style("display", "block");
